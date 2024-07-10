@@ -117,7 +117,7 @@ jobs:
           if [ "${{ env.ENV }}" != "test" ]; then
             docker build --build-arg MOUDLE=${{ env.MODULE }} -t $DOCKER_REPO/$MODULE:$VERSION .
           else 
-            docker build --build-arg MOUDLE=${{ env.MODULE }} DEBUG_PORT=${{ env.DEBUG_PORT }} -t $DOCKER_REPO/$MODULE:$VERSION .
+            docker build --build-arg MOUDLE=${{ env.MODULE }} --build-arg DEBUG_PORT=${{ env.DEBUG_PORT }} -t $DOCKER_REPO/$MODULE:$VERSION .
           fi
           docker login -u $DOCKER_REPO -p $DOCKER_PASSWORD
           docker push $DOCKER_REPO/$MODULE:$VERSION
