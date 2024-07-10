@@ -38,31 +38,31 @@ jobs:
           run_port=""
           debug_port=""
           
-          if [[ "pull_request_body" =~ -e:([^\ ]*) ]]; then
+          if [[ "$pull_request_body" =~ -e:([^\ ]*) ]]; then
           env="${BASH_REMATCH[1]}"
           fi
           
-          if [[ "pull_request_body" =~ -m:([^\ ]*) ]]; then
+          if [[ "$pull_request_body" =~ -m:([^\ ]*) ]]; then
           module="${BASH_REMATCH[1]}"
           fi
           
-          if [[ "pull_request_body" =~ -v:([^\ ]*) ]]; then
+          if [[ "$pull_request_body" =~ -v:([^\ ]*) ]]; then
           version="${BASH_REMATCH[1]}"
           fi
           
-          if [[ "pull_request_body" =~ -skip:([^\ ]*) ]]; then
+          if [[ "$pull_request_body" =~ -skip:([^\ ]*) ]]; then
           skip="${BASH_REMATCH[1]}"
           fi
           
-          if [[ "pull_request_body" =~ -rp:([^\ ]*) ]]; then
+          if [[ "$pull_request_body" =~ -rp:([^\ ]*) ]]; then
           run_port="${BASH_REMATCH[1]}"
           fi
           
-          if [[ "pull_request_body" =~ -dp:([^\ ]*) ]]; then
+          if [[ "$pull_request_body" =~ -dp:([^\ ]*) ]]; then
           debug_port="${BASH_REMATCH[1]}"
           fi
           
-          if [[ "pull_request_body" =~ -de:\<([^>]+)\> ]]; then
+          if [[ "$pull_request_body" =~ -de:\<([^>]+)\> ]]; then
           
           docker_env="${BASH_REMATCH[1]}"
           fi
