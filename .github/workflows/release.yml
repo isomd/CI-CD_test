@@ -114,6 +114,8 @@ jobs:
           cp ./target/*.jar ./docker
           cd docker
           
+          tail -f ./Dockerfile
+          
           if [ "${{ env.ENV }}" != "test" ]; then
             docker build --build-arg MOUDLE=${{ env.MODULE }} -t $DOCKER_REPO/$MODULE:$VERSION .
           else 
