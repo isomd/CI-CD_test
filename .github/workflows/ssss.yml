@@ -1,9 +1,9 @@
-name: pr合并后打包并部署
+name: Genius 多模块项目部署 [CI|CD]流
 
 on:
-  pull_request:
-    types:
-      - closed    # 分支关闭时
+  push:
+    branches:
+      - dev_01
 
 jobs:
   build:
@@ -14,10 +14,10 @@ jobs:
         uses: actions/checkout@v2
 
 
-      - name: Checkout builder Label
+      - name: Checkout Auto Label
         run: |
-          if [[ "${{ github.event.pull_request.body }}" == *"<Auto>"* ]]; then
-            echo "Pull request body contains <Auto>. Proceeding with the workflow."
+          if [[ "${{ github.event.head_commit.message }}" == *"<Auto>"* ]]; then
+            echo "Commit message contains <Auto>. Proceeding with the workflow."
           else
             echo "Commit message does not contain <Auto>. Skipping the workflow."
             exit 78 
@@ -26,49 +26,55 @@ jobs:
       - name: Get Commit Info
         id: extract
         run: |
-          pull_request_body="${{ github.event.pull_request.body }}"
-          echo "Pull request body: $pull_request_body"
+          commit_message="${{ github.event.head_commit.message }}"
+          echo "Commit Message: $commit_message"
           
           
           env=""
           module=""
+          module_type=""
           version=""
           skip=""
           docker_env=""
           run_port=""
           debug_port=""
           
-          if [[ "$pull_request_body" =~ -e:([^\ ]*) ]]; then
+          if [[ "$commit_message" =~ -e:([^\ ]*) ]]; then
           env="${BASH_REMATCH[1]}"
           fi
           
-          if [[ "$pull_request_body" =~ -m:([^\ ]*) ]]; then
+          if [[ "$commit_message" =~ -type:([^\ ]*) ]]; then
+          module_type="${BASH_REMATCH[1]}"
+          fi
+          
+          if [[ "$commit_message" =~ -m:([^\ ]*) ]]; then
           module="${BASH_REMATCH[1]}"
           fi
           
-          if [[ "$pull_request_body" =~ -v:([^\ ]*) ]]; then
+          if [[ "$commit_message" =~ -v:([^\ ]*) ]]; then
           version="${BASH_REMATCH[1]}"
           fi
           
-          if [[ "$pull_request_body" =~ -skip:([^\ ]*) ]]; then
+          if [[ "$commit_message" =~ -skip:([^\ ]*) ]]; then
           skip="${BASH_REMATCH[1]}"
           fi
           
-          if [[ "$pull_request_body" =~ -rp:([^\ ]*) ]]; then
+          if [[ "$commit_message" =~ -rp:([^\ ]*) ]]; then
           run_port="${BASH_REMATCH[1]}"
           fi
           
-          if [[ "$pull_request_body" =~ -dp:([^\ ]*) ]]; then
+          if [[ "$commit_message" =~ -dp:([^\ ]*) ]]; then
           debug_port="${BASH_REMATCH[1]}"
           fi
           
-          if [[ "$pull_request_body" =~ -de:\<([^>]+)\> ]]; then
+          if [[ "$commit_message" =~ -de:\<([^>]+)\> ]]; then
           
           docker_env="${BASH_REMATCH[1]}"
           fi
           
           echo "Environment: $env"
           echo "Module: $module"
+          echo "Module_Type: $module_type"
           echo "Version: $version"
           echo "Skip: $skip"
           echo "Run_Port: $run_port"
@@ -77,6 +83,7 @@ jobs:
           
           echo "ENV=$env" >> $GITHUB_ENV
           echo "MODULE=$module" >> $GITHUB_ENV
+          echo "MODULE_TYPE=$module_type" >> $GITHUB_ENV
           echo "VERSION=$version" >> $GITHUB_ENV
           echo "SKIP=$skip" >> $GITHUB_ENV
           echo "RUN_PORT=$run_port" >> $GITHUB_ENV
@@ -91,14 +98,21 @@ jobs:
           cache: maven
 
       - name: Build with Maven
+        if: ${{ env.SKIP != 'image'}}
         env:
           JASYPT_ALGO: ${{ secrets.JASYPT_ALGO }}
           JASYPT_PWD: ${{ secrets.JASYPT_PWD }}
         run: |
+          if [ "${{ env.MODULE_TYPE }}" != "single" ]; then
+            cd $MODULE
+          fi 
           echo "jasypt:" > src/main/resources/you-cant-see-that.yml
           echo "  encryptor:" >> src/main/resources/you-cant-see-that.yml
           echo "    algorithm: $JASYPT_ALGO" >> src/main/resources/you-cant-see-that.yml
           echo "    password:  $JASYPT_PWD" >> src/main/resources/you-cant-see-that.yml
+          if [ "${{ env.MODULE_TYPE }}" != "single" ]; then
+            cd ..
+          fi 
           mvn package -Dmaven.test.skip=true
 
       - name: Build and Push Docker Images
@@ -109,15 +123,18 @@ jobs:
         run: |
           echo "Module Name: $MODULE"
           
+          if [ "${{ env.MODULE_TYPE }}" != "single" ]; then
+            cd $MODULE
+          fi 
+          
           mkdir docker
           cp ./Dockerfile ./docker
           cp ./target/*.jar ./docker
           cd docker
-          
           if [ "${{ env.ENV }}" != "test" ]; then
-            docker build --build-arg MOUDLE=${{ env.MODULE }} -t $DOCKER_REPO/$MODULE:$VERSION .
+            docker build -t $DOCKER_REPO/$MODULE:$VERSION .
           else 
-            docker build --build-arg MOUDLE=${{ env.MODULE }} --build-arg DEBUG_PORT=${{ env.DEBUG_PORT }} -t $DOCKER_REPO/$MODULE:$VERSION .
+            docker build --build-arg DEBUG_PORT=${{ env.DEBUG_PORT }} -t $DOCKER_REPO/$MODULE:$VERSION .
           fi
           docker login -u $DOCKER_REPO -p $DOCKER_PASSWORD
           docker push $DOCKER_REPO/$MODULE:$VERSION
