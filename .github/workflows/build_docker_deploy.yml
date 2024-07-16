@@ -116,6 +116,7 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PWD }}
         run: |
           echo "Module Name: $MODULE"
+          mkdir ./docker
           cp ./Dockerfile ./docker
           cp ./target/*.jar ./docker
           cd docker
