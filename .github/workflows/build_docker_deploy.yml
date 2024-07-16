@@ -130,55 +130,58 @@ jobs:
           docker push $DOCKER_REPO/$LOWERCASE_MODULE:$VERSION
 
       - name: Choose the Server Host
-        if: ${{ env.ENV != '' }}
+        if: ${{ env.ENV != ''}}
         run: |
-          # Function to get credentials based on the environment and module
-          get_credentials() {
-            local env=$1
-            local module=$2
-            case $module in
-              Mixi-user)
-                pwd="${!env}_USER_${env}_PWD"
-                host="${!env}_USER_${env}_ADDRESS"
-                port="${!env}_USER_${env}_PORT"
-                ;;
-              Mixi-audoVideo)
-                pwd="${!env}_AUDO_VIDEO_${env}_PWD"
-                host="${!env}_AUDO_VIDEO_${env}_ADDRESS"
-                port="${!env}_AUDO_VIDEO_${env}_PORT"
-                ;;
-              Mixi-server)
-                pwd="${!env}_SERVER_${env}_PWD"
-                host="${!env}_SERVER_${env}_ADDRESS"
-                port="${!env}_SERVER_${env}_PORT"
-                ;;
-              Mixi-webRoom)
-                pwd="${!env}_WEB_ROOM_${env}_PWD"
-                host="${!env}_WEB_ROOM_${env}_ADDRESS"
-                port="${!env}_WEB_ROOM_${env}_PORT"
-                ;;
-              Mixi-gateway)
-                pwd="${!env}_GATEWAY_${env}_PWD"
-                host="${!env}_GATEWAY_${env}_ADDRESS"
-                port="${!env}_GATEWAY_${env}_PORT"
-                ;;
-              *)
-                echo "Invalid module: $module"
-                exit 1
-                ;;
-            esac
-            echo "PWD=$pwd" >> $GITHUB_ENV
-            echo "HOST=$host" >> $GITHUB_ENV
-            echo "PORT=$port" >> $GITHUB_ENV
-          }
-          
-          # Check and set credentials based on ENV and MOUDLE
-          if [ "$ENV" == "prod" ] || [ "$ENV" == "test" ]; then
-            get_credentials "$ENV" "$MOUDLE"
+          pwd=""
+          host=""
+          port=""
+          if [ "${{ env.ENV }}" == "prod" && "${{ env.MOUDLE }}" == "Mixi-user"]; then
+            pwd="${{ secrets.MIXI_USER_PROD_PWD }}"
+            host="${{ secrets.MIXI_USER_PROD_ADDRESS }}"
+            port="${{ secrets.MIXI_USER_PROD_PORT }}"
+          elif ["${{ env.ENV }}" == "prod" && "${{ env.MOUDLE }}" == "Mixi-audoVideo" ]; then
+            pwd="${{ secrets.MIXI_AUDO_VIDEO_PROD_PWD }}"
+            host="${{ secrets.MIXI_AUDO_VIDEO_PROD_ADDRESS }}"
+            port="${{ secrets.MIXI_AUDO_VIDEO_PROD_PORT }}"
+          elif ["${{ env.ENV }}" == "prod" && "${{ env.MOUDLE }}" == "Mixi-server" ]; then
+            pwd="${{ secrets.MIXI_SERVER_PROD_PWD }}"
+            host="${{ secrets.MIXI_SERVER_PROD_ADDRESS }}"
+            port="${{ secrets.MIXI_SERVER_PROD_PORT }}"
+          elif ["${{ env.ENV }}" == "prod" && "${{ env.MOUDLE }}" == "Mixi-webRoom" ]; then
+            pwd="${{ secrets.MIXI_WEB_ROOM_PROD_PWD }}"
+            host="${{ secrets.MIXI_WEB_ROOM_PROD_ADDRESS }}"
+            port="${{ secrets.MIXI_WEB_ROOM_PROD_PORT }}"
+          elif ["${{ env.ENV }}" == "prod" && "${{ env.MOUDLE }}" == "Mixi-gateway" ]; then
+            pwd="${{ secrets.MIXI_GATEWAY_PROD_PWD }}"
+            host="${{ secrets.MIXI_GATEWAY_PROD_ADDRESS }}"
+            port="${{ secrets.MIXI_GATEWAY_PROD_PORT }}"
+          elif [ "${{ env.ENV }}" == "test" && "${{ env.MOUDLE }}" == "Mixi-user"]; then
+            pwd="${{ secrets.MIXI_USER_TEST_PWD }}"
+            host="${{ secrets.MIXI_USER_TEST_ADDRESS }}"
+            port="${{ secrets.MIXI_USER_TEST_PORT }}"
+          elif [ "${{ env.ENV }}" == "test" && "${{ env.MOUDLE }}" == "Mixi-audoVideo" ]; then
+            pwd="${{ secrets.MIXI_AUDO_VIDEO_TEST_PWD }}"
+            host="${{ secrets.MIXI_AUDO_VIDEO_TEST_ADDRESS }}"
+            port="${{ secrets.MIXI_AUDO_VIDEO_TEST_PORT }}"
+          elif [ "${{ env.ENV }}" == "test" && "${{ env.MOUDLE }}" == "Mixi-server" ]; then
+            pwd="${{ secrets.MIXI_SERVER_TEST_PWD }}"
+            host="${{ secrets.MIXI_SERVER_TEST_ADDRESS }}"
+            port="${{ secrets.MIXI_SERVER_TEST_PORT }}"
+          elif [ "${{ env.ENV }}" == "test" && "${{ env.MOUDLE }}" == "Mixi-webRoom" ]; then
+            pwd="${{ secrets.MIXI_WEB_ROOM_TEST_PWD }}"
+            host="${{ secrets.MIXI_WEB_ROOM_TEST_ADDRESS }}"
+            port="${{ secrets.MIXI_WEB_ROOM_TEST_PORT }}"
+          elif [ "${{ env.ENV }}" == "test" && "${{ env.MOUDLE }}" == "Mixi-gateway" ]; then
+            pwd="${{ secrets.MIXI_GATEWAY_TEST_PWD }}"
+            host="${{ secrets.MIXI_GATEWAY_TEST_ADDRESS }}"
+            port="${{ secrets.MIXI_GATEWAY_TEST_PORT }}"
           else
-            echo "Invalid environment: $ENV"
-            exit 1
-          fi
+           echo "Invalid environment"
+           exit 1
+          fi 
+          echo "PWD=$pwd" >> $GITHUB_ENV
+          echo "HOST=$host" >> $GITHUB_ENV
+          echo "PORT=$port" >> $GITHUB_ENV
 
       - name: Connect Server
         uses: appleboy/ssh-action@master
