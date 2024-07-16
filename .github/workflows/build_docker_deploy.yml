@@ -46,6 +46,7 @@ jobs:
           
           if [[ "$pull_request_body" =~ -m:([^\ ]*) ]]; then
           module="${BASH_REMATCH[1]}"
+          lowercase_module = $(echo ${{ env.UPPERCASE_STRING }} | awk '{print tolower($0)}')
           fi
           
           if [[ "$commit_message" =~ -type:([^\ ]*) ]]; then
@@ -75,6 +76,7 @@ jobs:
           
           echo "Environment: $env"
           echo "Module: $module"
+          echo "Lowercase_Module: $lowercase_module"
           echo "Module_Type: $module_type"
           echo "Version: $version"
           echo "Skip: $skip"
@@ -84,6 +86,7 @@ jobs:
           
           echo "ENV=$env" >> $GITHUB_ENV
           echo "MODULE=$module" >> $GITHUB_ENV
+          echo "LOWERCASE_MODULE=$lowercase_module" >> $GITHUB_ENV
           echo "MODULE_TYPE=$module_type" >> $GITHUB_ENV
           echo "VERSION=$version" >> $GITHUB_ENV
           echo "SKIP=$skip" >> $GITHUB_ENV
@@ -120,12 +123,11 @@ jobs:
           cp ./Dockerfile ./docker
           cp ./target/*.jar ./docker
           cd docker
-          moudle=$(echo "${{ env.MOUDLE }}" | tr '[:upper:]' '[:lower:]')
 
           if [ "${{ env.ENV }}" != "test" ]; then
-            docker build --build-arg MOUDLE=$moudle -t $DOCKER_REPO/$moudle:$VERSION .
+            docker build --build-arg MOUDLE=${{ env.LOWERCASE_MODULE }} -t $DOCKER_REPO/$LOWERCASE_MODULE:$VERSION .
           else 
-            docker build --build-arg MOUDLE=$moudle --build-arg DEBUG_PORT=${{ env.DEBUG_PORT }} -t $DOCKER_REPO/$moudle:$VERSION .
+            docker build --build-arg MOUDLE=${{ env.LOWERCASE_MODULE }} --build-arg DEBUG_PORT=${{ env.DEBUG_PORT }} -t $DOCKER_REPO/$LOWERCASE_MODULE:$VERSION .
           fi
           docker login -u $DOCKER_REPO -p $DOCKER_PASSWORD
           docker push $DOCKER_REPO/$MODULE:$VERSION
@@ -137,23 +139,23 @@ jobs:
           host=""
           port=""
           if [ "${{ env.ENV }}" == "prod" ]; then
-           if[ $moudle == "mixi-user" ]; then
+           if[ "${{ env.MOUDLE }}" == "Mixi-user" ]; then
             pwd="${{ secrets.MIXI_USER_PROD_PWD }}"
             host="${{ secrets.MIXI_USER_PROD_ADDRESS }}"
             port="${{ secrets.MIXI_USER_PROD_PORT }}"
-           elif [ $moudle == "mixi-audovideo" ]; then
+           elif [ "${{ env.MOUDLE }}" == "Mixi-audoVideo" ]; then
             pwd="${{ secrets.MIXI_AUDO_VIDEO_PROD_PWD }}"
             host="${{ secrets.MIXI_AUDO_VIDEO_PROD_ADDRESS }}"
             port="${{ secrets.MIXI_AUDO_VIDEO_PROD_PORT }}"
-           elif [ $moudle == "mixi-server" ]; then
+           elif [ "${{ env.MOUDLE }}" == "Mixi-server" ]; then
             pwd="${{ secrets.MIXI_SERVER_PROD_PWD }}"
             host="${{ secrets.MIXI_SERVER_PROD_ADDRESS }}"
             port="${{ secrets.MIXI_SERVER_PROD_PORT }}"
-           elif [ $moudle == "mixi-webroom" ]; then
+           elif [ "${{ env.MOUDLE }}" == "Mixi-webRoom" ]; then
             pwd="${{ secrets.MIXI_WEB_ROOM_PROD_PWD }}"
             host="${{ secrets.MIXI_WEB_ROOM_PROD_ADDRESS }}"
             port="${{ secrets.MIXI_WEB_ROOM_PROD_PORT }}"
-           elif [ $moudle == "mixi-gateway" ]; then
+           elif [ "${{ env.MOUDLE }}" == "Mixi-gateway" ]; then
             pwd="${{ secrets.MIXI_GATEWAY_PROD_PWD }}"
             host="${{ secrets.MIXI_GATEWAY_PROD_ADDRESS }}"
             port="${{ secrets.MIXI_GATEWAY_PROD_PORT }}"
@@ -162,23 +164,23 @@ jobs:
             exit 1
            fi
           elif [ "${{ env.ENV }}" == "test" ]; then
-           if[ $moudle == "mixi-user" ]; then
+           if[ "${{ env.MOUDLE }}" == "Mixi-user" ]; then
             pwd="${{ secrets.MIXI_USER_TEST_PWD }}"
             host="${{ secrets.MIXI_USER_TEST_ADDRESS }}"
             port="${{ secrets.MIXI_USER_TEST_PORT }}"
-           elif [ $moudle == "mixi-audovideo" ]; then
+           elif [ "${{ env.MOUDLE }}" == "Mixi-audoVideo" ]; then
             pwd="${{ secrets.MIXI_AUDO_VIDEO_TEST_PWD }}"
             host="${{ secrets.MIXI_AUDO_VIDEO_TEST_ADDRESS }}"
             port="${{ secrets.MIXI_AUDO_VIDEO_TEST_PORT }}"
-           elif [ $moudle == "mixi-server" ]; then
+           elif [ "${{ env.MOUDLE }}" == "Mixi-server" ]; then
             pwd="${{ secrets.MIXI_SERVER_TEST_PWD }}"
             host="${{ secrets.MIXI_SERVER_TEST_ADDRESS }}"
             port="${{ secrets.MIXI_SERVER_TEST_PORT }}"
-           elif [ $moudle == "mixi-webroom" ]; then
+           elif [ "${{ env.MOUDLE }}" == "Mixi-webRoom" ]; then
             pwd="${{ secrets.MIXI_WEB_ROOM_TEST_PWD }}"
             host="${{ secrets.MIXI_WEB_ROOM_TEST_ADDRESS }}"
             port="${{ secrets.MIXI_WEB_ROOM_TEST_PORT }}"
-           elif [ $moudle == "mixi-gateway" ]; then
+           elif [ "${{ env.MOUDLE }}" == "Mixi-gateway" ]; then
             pwd="${{ secrets.MIXI_GATEWAY_TEST_PWD }}"
             host="${{ secrets.MIXI_GATEWAY_TEST_ADDRESS }}"
             port="${{ secrets.MIXI_GATEWAY_TEST_PORT }}"
@@ -209,14 +211,14 @@ jobs:
               if [ "$stop_docker_name" != "" ]; then
                  docker stop $stop_docker_name
               fi
-              docker rm $moudle-${{ env.VERSION }}
-              docker rmi ${{ secrets.DOCKER_REPO }}/$moudle:${{ env.VERSION }}
-              docker pull ${{ secrets.DOCKER_REPO }}/$moudle:${{ env.VERSION }}
+              docker rm ${{ env.MODULE }}-${{ env.VERSION }}
+              docker rmi ${{ secrets.DOCKER_REPO }}/${{ env.MODULE }}:${{ env.VERSION }}
+              docker pull ${{ secrets.DOCKER_REPO }}/${{ env.MODULE }}:${{ env.VERSION }}
               if [ "${{ env.ENV }}" == "prod" ]; then
-                docker run -p ${{env.RUN_PORT}}:${{env.RUN_PORT}} --name $moudle-${{ env.VERSION }} ${{env.DOCKER_ENV}} -d ${{ secrets.DOCKER_REPO }}/$moudle:${{ env.VERSION }}
+                docker run -p ${{env.RUN_PORT}}:${{env.RUN_PORT}} --name ${{ env.MODULE }}-${{ env.VERSION }} ${{env.DOCKER_ENV}} -d ${{ secrets.DOCKER_REPO }}/${{ env.MODULE }}:${{ env.VERSION }}
               elif [ "${{ env.DEBUG_PORT }}" != "" ]; then
-                docker run -p ${{env.RUN_PORT}}:${{env.RUN_PORT}} -p ${{env.DEBUG_PORT}}:${{env.DEBUG_PORT}} --name $moudle-${{ env.VERSION }} ${{env.DOCKER_ENV}} -d ${{ secrets.DOCKER_REPO }}/$moudle:${{ env.VERSION }}
+                docker run -p ${{env.RUN_PORT}}:${{env.RUN_PORT}} -p ${{env.DEBUG_PORT}}:${{env.DEBUG_PORT}} --name ${{ env.MODULE }}-${{ env.VERSION }} ${{env.DOCKER_ENV}} -d ${{ secrets.DOCKER_REPO }}/${{ env.MODULE }}:${{ env.VERSION }}
               else
-                docker run -p ${{env.RUN_PORT}}:${{env.RUN_PORT}} --name $moudle-${{ env.VERSION }} ${{env.DOCKER_ENV}} -d ${{ secrets.DOCKER_REPO }}/$moudle:${{ env.VERSION }}
+                docker run -p ${{env.RUN_PORT}}:${{env.RUN_PORT}} --name ${{ env.MODULE }}-${{ env.VERSION }} ${{env.DOCKER_ENV}} -d ${{ secrets.DOCKER_REPO }}/${{ env.MODULE }}:${{ env.VERSION }}
               fi
             fi
