@@ -3,7 +3,7 @@ name: Convert String to Lowercase
 on:
   push:
     branches:
-      - dev_01
+      - main
   workflow_dispatch:
 
 jobs:
@@ -11,11 +11,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Set up environment variables
+        run: |
+          # Here we set the uppercase string as an environment variable
+          echo "UPPERCASE_STRING=HELLO WORLD" >> $GITHUB_ENV
+
       - name: Convert string to lowercase
         id: convert
         run: |
-          echo "input_string=XIAOCHUN ------->" >> $GITHUB_ENV
-          echo "lowercase_string=$(echo ${{ env.input_string }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          # Convert the uppercase string to lowercase using awk
+          echo "lowercase_string=$(echo ${{ env.UPPERCASE_STRING }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
 
       - name: Print Lowercase String
         run: echo "Lowercase string is ${{ env.lowercase_string }}"
