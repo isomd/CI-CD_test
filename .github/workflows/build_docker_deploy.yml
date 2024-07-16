@@ -47,8 +47,8 @@ jobs:
           
           if [[ "$pull_request_body" =~ -m:([^\ ]*) ]]; then
           module="${BASH_REMATCH[1]}"
-          lowercase_module = "$module"
           fi
+          lowercase_module = "$(echo $module | awk '{print tolower($0)}')"
           
           if [[ "$commit_message" =~ -type:([^\ ]*) ]]; then
           module_type="${BASH_REMATCH[1]}"
