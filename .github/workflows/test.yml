@@ -1,28 +1,21 @@
-name: Module Configuration Setup
+name: Convert String to Lowercase
 
 on:
   push:
     branches:
       - dev_01
+  workflow_dispatch:
 
 jobs:
-  setup-config:
+  lowercase-string:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        module: [Mixi-audo, Mixi-gateway, Mixi-server, Mixi-user, Mixi-webRoom]
-        environment: [test, prod]
-
-    env:
-      # 使用if条件语句来设置环境变量，只有当矩阵中的environment等于test或prod时才设置
-      MIXI_${{ matrix.module }}_PWD: ${{ if(matrix.environment == 'test') secrets[${{ matrix.module }}_TEST_PWD] else secrets[${{ matrix.module }}_PROD_PWD] }}
-      MIXI_${{ matrix.module }}_HOST: ${{ if(matrix.environment == 'test') secrets[${{ matrix.module }}_TEST_HOST] else secrets[${{ matrix.module }}_PROD_HOST] }}
-      MIXI_${{ matrix.module }}_PORT: ${{ if(matrix.environment == 'test') secrets[${{ matrix.module }}_TEST_PORT] else secrets[${{ matrix.module }}_PROD_PORT] }}
 
     steps:
-      - name: Show Configuration
+      - name: Convert string to lowercase
+        id: convert
         run: |
-          echo "Module: ${{ matrix.module }}, Environment: ${{ matrix.environment }}"
-          echo "Password: ${{ env.MIXI_${{ matrix.module }}_PWD }}"
-          echo "Host: ${{ env.MIXI_${{ matrix.module }}_HOST }}"
-          echo "Port: ${{ env.MIXI_${{ matrix.module }}_PORT }}"
+          echo "input_string=XIAOCHUN ------->" >> $GITHUB_ENV
+          echo "lowercase_string=$(echo ${{ env.input_string }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Print Lowercase String
+        run: echo "Lowercase string is ${{ env.lowercase_string }}"
