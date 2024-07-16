@@ -72,8 +72,10 @@ jobs:
           docker_env="${BASH_REMATCH[1]}"
           fi
           
+          echo "LOWERCASE_MODULE=$(echo $module | awk '{print tolower($0)}')" >> $GITHUB_ENV
           echo "Environment: $env"
           echo "Module: $module"
+          echo "Module: ${{ LOWERCASE_MODULE }}"
           echo "Module_Type: $module_type"
           echo "Version: $version"
           echo "Skip: $skip"
@@ -83,8 +85,7 @@ jobs:
           
           echo "ENV=$env" >> $GITHUB_ENV
           echo "MODULE=$module" >> $GITHUB_ENV
-          echo "LOWERCASE_MODULE=$lowercase_module" >> $GITHUB_ENV
-          echo "LOWERCASE_MODULE=$(echo ${{ env.MODULE }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
+#          echo "LOWERCASE_MODULE=$(echo ${{ env.MODULE }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
           echo "MODULE_TYPE=$module_type" >> $GITHUB_ENV
           echo "VERSION=$version" >> $GITHUB_ENV
           echo "SKIP=$skip" >> $GITHUB_ENV
@@ -122,7 +123,7 @@ jobs:
           cp ./target/*.jar ./docker
           cd docker
 
-          if [ "${{ env.ENV }}" != "test" ]; then
+          if [ "${{ env.ENV }}" == "prod" ]; then
             docker build --build-arg MOUDLE=${{ env.LOWERCASE_MODULE }} -t ${{ env.DOCKER_REPO }}/${{ env.LOWERCASE_MODULE }}:${{ env.VERSION }} .
           else 
             docker build --build-arg MOUDLE=${{ env.LOWERCASE_MODULE }} --build-arg DEBUG_PORT=${{ env.DEBUG_PORT }} -t ${{ env.DOCKER_REPO }}/${{ env.LOWERCASE_MODULE }}:${{ env.VERSION }} .
