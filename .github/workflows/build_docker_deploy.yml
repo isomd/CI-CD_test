@@ -135,24 +135,25 @@ jobs:
           pwd=""
           host=""
           port=""
+          moudle=$(echo "${{ env.MOUDLE }}" | tr '[:upper:]' '[:lower:]')
           if [ "${{ env.ENV }}" == "prod" ]; then
-           if[ "${{ env.MOUDLE }}" == "mixi-user" ]; then
+           if[ $moudle == "mixi-user" ]; then
             pwd="${{ secrets.MIXI_USER_PROD_PWD }}"
             host="${{ secrets.MIXI_USER_PROD_ADDRESS }}"
             port="${{ secrets.MIXI_USER_PROD_PORT }}"
-           elif [ "${{ env.MOUDLE }}" == "mixi-audoVideo" ]; then
+           elif [ $moudle == "mixi-audovideo" ]; then
             pwd="${{ secrets.MIXI_AUDO_VIDEO_PROD_PWD }}"
             host="${{ secrets.MIXI_AUDO_VIDEO_PROD_ADDRESS }}"
             port="${{ secrets.MIXI_AUDO_VIDEO_PROD_PORT }}"
-           elif [ "${{ env.MOUDLE }}" == "mixi-server" ]; then
+           elif [ $moudle == "mixi-server" ]; then
             pwd="${{ secrets.MIXI_SERVER_PROD_PWD }}"
             host="${{ secrets.MIXI_SERVER_PROD_ADDRESS }}"
             port="${{ secrets.MIXI_SERVER_PROD_PORT }}"
-           elif [ "${{ env.MOUDLE }}" == "mixi-webRoom" ]; then
+           elif [ $moudle == "mixi-webroom" ]; then
             pwd="${{ secrets.MIXI_WEB_ROOM_PROD_PWD }}"
             host="${{ secrets.MIXI_WEB_ROOM_PROD_ADDRESS }}"
             port="${{ secrets.MIXI_WEB_ROOM_PROD_PORT }}"
-           elif [ "${{ env.MOUDLE }}" == "mixi-gateway" ]; then
+           elif [ $moudle == "mixi-gateway" ]; then
             pwd="${{ secrets.MIXI_GATEWAY_PROD_PWD }}"
             host="${{ secrets.MIXI_GATEWAY_PROD_ADDRESS }}"
             port="${{ secrets.MIXI_GATEWAY_PROD_PORT }}"
@@ -161,23 +162,23 @@ jobs:
             exit 1
            fi
           elif [ "${{ env.ENV }}" == "test" ]; then
-           if[ "${{ env.MOUDLE }}" == "mixi-user" ]; then
+           if[ $moudle == "mixi-user" ]; then
             pwd="${{ secrets.MIXI_USER_TEST_PWD }}"
             host="${{ secrets.MIXI_USER_TEST_ADDRESS }}"
             port="${{ secrets.MIXI_USER_TEST_PORT }}"
-           elif [ "${{ env.MOUDLE }}" == "mixi-audoVideo" ]; then
+           elif [ $moudle == "mixi-audovideo" ]; then
             pwd="${{ secrets.MIXI_AUDO_VIDEO_TEST_PWD }}"
             host="${{ secrets.MIXI_AUDO_VIDEO_TEST_ADDRESS }}"
             port="${{ secrets.MIXI_AUDO_VIDEO_TEST_PORT }}"
-           elif [ "${{ env.MOUDLE }}" == "mixi-server" ]; then
+           elif [ $moudle == "mixi-server" ]; then
             pwd="${{ secrets.MIXI_SERVER_TEST_PWD }}"
             host="${{ secrets.MIXI_SERVER_TEST_ADDRESS }}"
             port="${{ secrets.MIXI_SERVER_TEST_PORT }}"
-           elif [ "${{ env.MOUDLE }}" == "mixi-webRoom" ]; then
+           elif [ $moudle == "mixi-webroom" ]; then
             pwd="${{ secrets.MIXI_WEB_ROOM_TEST_PWD }}"
             host="${{ secrets.MIXI_WEB_ROOM_TEST_ADDRESS }}"
             port="${{ secrets.MIXI_WEB_ROOM_TEST_PORT }}"
-           elif [ "${{ env.MOUDLE }}" == "mixi-gateway" ]; then
+           elif [ $moudle == "mixi-gateway" ]; then
             pwd="${{ secrets.MIXI_GATEWAY_TEST_PWD }}"
             host="${{ secrets.MIXI_GATEWAY_TEST_ADDRESS }}"
             port="${{ secrets.MIXI_GATEWAY_TEST_PORT }}"
