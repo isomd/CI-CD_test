@@ -30,10 +30,8 @@ jobs:
           pull_request_body="${{ github.event.pull_request.body }}"
           echo "Pull request body: $pull_request_body"
           
-          
           env=""
           module=""
-          lowercase_module=""
           module_type=""
           version=""
           skip=""
@@ -48,7 +46,6 @@ jobs:
           if [[ "$pull_request_body" =~ -m:([^\ ]*) ]]; then
           module="${BASH_REMATCH[1]}"
           fi
-          lowercase_module = "$(echo $module | awk '{print tolower($0)}')"
           
           if [[ "$commit_message" =~ -type:([^\ ]*) ]]; then
           module_type="${BASH_REMATCH[1]}"
@@ -77,7 +74,6 @@ jobs:
           
           echo "Environment: $env"
           echo "Module: $module"
-          echo "Lowercase_Module: $lowercase_module"
           echo "Module_Type: $module_type"
           echo "Version: $version"
           echo "Skip: $skip"
@@ -88,6 +84,7 @@ jobs:
           echo "ENV=$env" >> $GITHUB_ENV
           echo "MODULE=$module" >> $GITHUB_ENV
           echo "LOWERCASE_MODULE=$lowercase_module" >> $GITHUB_ENV
+          echo "LOWERCASE_MODULE=$(echo ${{ env.MODULE }} | awk '{print tolower($0)}')" >> $GITHUB_ENV
           echo "MODULE_TYPE=$module_type" >> $GITHUB_ENV
           echo "VERSION=$version" >> $GITHUB_ENV
           echo "SKIP=$skip" >> $GITHUB_ENV
