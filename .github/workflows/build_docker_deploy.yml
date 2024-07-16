@@ -7,6 +7,7 @@ on:
 
 jobs:
   build:
+    if: github.event.pull_request.merged == true && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
 
     steps:
@@ -32,6 +33,7 @@ jobs:
           
           env=""
           module=""
+          module_type=""
           version=""
           skip=""
           docker_env=""
@@ -44,6 +46,10 @@ jobs:
           
           if [[ "$pull_request_body" =~ -m:([^\ ]*) ]]; then
           module="${BASH_REMATCH[1]}"
+          fi
+          
+          if [[ "$commit_message" =~ -type:([^\ ]*) ]]; then
+          module_type="${BASH_REMATCH[1]}"
           fi
           
           if [[ "$pull_request_body" =~ -v:([^\ ]*) ]]; then
@@ -69,6 +75,7 @@ jobs:
           
           echo "Environment: $env"
           echo "Module: $module"
+          echo "Module_Type: $module_type"
           echo "Version: $version"
           echo "Skip: $skip"
           echo "Run_Port: $run_port"
@@ -77,6 +84,7 @@ jobs:
           
           echo "ENV=$env" >> $GITHUB_ENV
           echo "MODULE=$module" >> $GITHUB_ENV
+          echo "MODULE_TYPE=$module_type" >> $GITHUB_ENV
           echo "VERSION=$version" >> $GITHUB_ENV
           echo "SKIP=$skip" >> $GITHUB_ENV
           echo "RUN_PORT=$run_port" >> $GITHUB_ENV
@@ -95,10 +103,16 @@ jobs:
           JASYPT_ALGO: ${{ secrets.JASYPT_ALGO }}
           JASYPT_PWD: ${{ secrets.JASYPT_PWD }}
         run: |
+          if [ "${{ env.MODULE_TYPE }}" != "single" ]; then
+            cd $MODULE
+          fi 
           echo "jasypt:" > src/main/resources/you-cant-see-that.yml
           echo "  encryptor:" >> src/main/resources/you-cant-see-that.yml
           echo "    algorithm: $JASYPT_ALGO" >> src/main/resources/you-cant-see-that.yml
           echo "    password:  $JASYPT_PWD" >> src/main/resources/you-cant-see-that.yml
+          if [ "${{ env.MODULE_TYPE }}" != "single" ]; then
+            cd ..
+          fi 
           mvn package -Dmaven.test.skip=true
 
       - name: Build and Push Docker Images
@@ -108,8 +122,9 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PWD }}
         run: |
           echo "Module Name: $MODULE"
-          
-          mkdir docker
+          if [ "${{ env.MODULE_TYPE }}" != "single" ]; then
+            cd $MODULE
+          fi 
           cp ./Dockerfile ./docker
           cp ./target/*.jar ./docker
           cd docker
@@ -129,13 +144,55 @@ jobs:
           host=""
           port=""
           if [ "${{ env.ENV }}" == "prod" ]; then
-           pwd="${{ secrets.PROD_PWD }}"
-           host="${{ secrets.PROD_ADDRESS }}"
-           port="${{ secrets.PROD_PORT }}"
+           if[ "${{ env.MOUDLE }}" == "Mixi-user" ]; then
+            pwd="${{ secrets.MIXI_USER_PROD_PWD }}"
+            host="${{ secrets.MIXI_USER_PROD_ADDRESS }}"
+            port="${{ secrets.MIXI_USER_PROD_PORT }}"
+           elif [ "${{ env.MOUDLE }}" == "Mixi-audoVideo" ]; then
+            pwd="${{ secrets.MIXI_AUDO_VIDEO_PROD_PWD }}"
+            host="${{ secrets.MIXI_AUDO_VIDEO_PROD_ADDRESS }}"
+            port="${{ secrets.MIXI_AUDO_VIDEO_PROD_PORT }}"
+           elif [ "${{ env.MOUDLE }}" == "Mixi-server" ]; then
+            pwd="${{ secrets.MIXI_SERVER_PROD_PWD }}"
+            host="${{ secrets.MIXI_SERVER_PROD_ADDRESS }}"
+            port="${{ secrets.MIXI_SERVER_PROD_PORT }}"
+           elif [ "${{ env.MOUDLE }}" == "Mixi-webRoom" ]; then
+            pwd="${{ secrets.MIXI_WEB_ROOM_PROD_PWD }}"
+            host="${{ secrets.MIXI_WEB_ROOM_PROD_ADDRESS }}"
+            port="${{ secrets.MIXI_WEB_ROOM_PROD_PORT }}"
+           elif [ "${{ env.MOUDLE }}" == "Mixi-gateway" ]; then
+            pwd="${{ secrets.MIXI_GATEWAY_PROD_PWD }}"
+            host="${{ secrets.MIXI_GATEWAY_PROD_ADDRESS }}"
+            port="${{ secrets.MIXI_GATEWAY_PROD_PORT }}"
+           else
+            echo "Invalid moudle"
+            exit 1
+           fi
           elif [ "${{ env.ENV }}" == "test" ]; then
-           pwd="${{ secrets.TEST_PWD }}"
-           host="${{ secrets.TEST_ADDRESS }}"
-           port="${{ secrets.TEST_PORT }}"
+           if[ "${{ env.MOUDLE }}" == "Mixi-user" ]; then
+            pwd="${{ secrets.MIXI_USER_TEST_PWD }}"
+            host="${{ secrets.MIXI_USER_TEST_ADDRESS }}"
+            port="${{ secrets.MIXI_USER_TEST_PORT }}"
+           elif [ "${{ env.MOUDLE }}" == "Mixi-audoVideo" ]; then
+            pwd="${{ secrets.MIXI_AUDO_VIDEO_TEST_PWD }}"
+            host="${{ secrets.MIXI_AUDO_VIDEO_TEST_ADDRESS }}"
+            port="${{ secrets.MIXI_AUDO_VIDEO_TEST_PORT }}"
+           elif [ "${{ env.MOUDLE }}" == "Mixi-server" ]; then
+            pwd="${{ secrets.MIXI_SERVER_TEST_PWD }}"
+            host="${{ secrets.MIXI_SERVER_TEST_ADDRESS }}"
+            port="${{ secrets.MIXI_SERVER_TEST_PORT }}"
+           elif [ "${{ env.MOUDLE }}" == "Mixi-webRoom" ]; then
+            pwd="${{ secrets.MIXI_WEB_ROOM_TEST_PWD }}"
+            host="${{ secrets.MIXI_WEB_ROOM_TEST_ADDRESS }}"
+            port="${{ secrets.MIXI_WEB_ROOM_TEST_PORT }}"
+           elif [ "${{ env.MOUDLE }}" == "Mixi-gateway" ]; then
+            pwd="${{ secrets.MIXI_GATEWAY_TEST_PWD }}"
+            host="${{ secrets.MIXI_GATEWAY_TEST_ADDRESS }}"
+            port="${{ secrets.MIXI_GATEWAY_TEST_PORT }}"
+           else
+            echo "Invalid moudle"
+            exit 1
+           fi
           else
            echo "Invalid environment"
            exit 1
