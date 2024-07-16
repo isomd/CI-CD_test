@@ -3,7 +3,7 @@ name: Convert String to Lowercase
 on:
   push:
     branches:
-      - main
+      - dev_01
   workflow_dispatch:
 
 jobs:
