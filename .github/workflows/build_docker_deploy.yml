@@ -136,7 +136,7 @@ jobs:
           host=""
           port=""
           if [ "${{ env.ENV }}" == "prod" ]; then
-           if[ "${{ env.MOUDLE }}" == "Mixi-user" ]; then
+           if [ "${{ env.MOUDLE }}" == "Mixi-user" ]; then
             pwd="${{ secrets.MIXI_USER_PROD_PWD }}"
             host="${{ secrets.MIXI_USER_PROD_ADDRESS }}"
             port="${{ secrets.MIXI_USER_PROD_PORT }}"
@@ -161,7 +161,7 @@ jobs:
             exit 1
            fi
           elif [ "${{ env.ENV }}" == "test" ]; then
-           if[ "${{ env.MOUDLE }}" == "Mixi-user" ]; then
+           if [ "${{ env.MOUDLE }}" == "Mixi-user" ]; then
             pwd="${{ secrets.MIXI_USER_TEST_PWD }}"
             host="${{ secrets.MIXI_USER_TEST_ADDRESS }}"
             port="${{ secrets.MIXI_USER_TEST_PORT }}"
