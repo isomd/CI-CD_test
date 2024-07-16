@@ -103,16 +103,10 @@ jobs:
           JASYPT_ALGO: ${{ secrets.JASYPT_ALGO }}
           JASYPT_PWD: ${{ secrets.JASYPT_PWD }}
         run: |
-          if [ "${{ env.MODULE_TYPE }}" != "single" ]; then
-            cd $MODULE
-          fi 
           echo "jasypt:" > src/main/resources/you-cant-see-that.yml
           echo "  encryptor:" >> src/main/resources/you-cant-see-that.yml
           echo "    algorithm: $JASYPT_ALGO" >> src/main/resources/you-cant-see-that.yml
           echo "    password:  $JASYPT_PWD" >> src/main/resources/you-cant-see-that.yml
-          if [ "${{ env.MODULE_TYPE }}" != "single" ]; then
-            cd ..
-          fi 
           mvn package -Dmaven.test.skip=true
 
       - name: Build and Push Docker Images
@@ -122,9 +116,6 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PWD }}
         run: |
           echo "Module Name: $MODULE"
-          if [ "${{ env.MODULE_TYPE }}" != "single" ]; then
-            cd $MODULE
-          fi 
           cp ./Dockerfile ./docker
           cp ./target/*.jar ./docker
           cd docker
