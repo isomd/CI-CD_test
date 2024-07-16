@@ -72,6 +72,7 @@ jobs:
           docker_env="${BASH_REMATCH[1]}"
           fi
           
+          
           echo "LOWERCASE_MODULE=$(echo $module | awk '{print tolower($0)}')" >> $GITHUB_ENV
           echo "Environment: $env"
           echo "Module: $module"
