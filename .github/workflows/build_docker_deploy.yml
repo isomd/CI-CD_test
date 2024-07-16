@@ -123,9 +123,9 @@ jobs:
           cd docker
 
           if [ "${{ env.ENV }}" != "test" ]; then
-            docker build --build-arg MOUDLE=${{ env.LOWERCASE_MODULE }} -t $DOCKER_REPO/$LOWERCASE_MODULE:$VERSION .
+            docker build --build-arg MOUDLE=${{ env.LOWERCASE_MODULE }} -t ${{ env.DOCKER_REPO }}/${{ env.LOWERCASE_MODULE }}:${{ env.VERSION }} .
           else 
-            docker build --build-arg MOUDLE=${{ env.LOWERCASE_MODULE }} --build-arg DEBUG_PORT=${{ env.DEBUG_PORT }} -t $DOCKER_REPO/$LOWERCASE_MODULE:$VERSION .
+            docker build --build-arg MOUDLE=${{ env.LOWERCASE_MODULE }} --build-arg DEBUG_PORT=${{ env.DEBUG_PORT }} -t ${{ env.DOCKER_REPO }}/${{ env.LOWERCASE_MODULE }}:${{ env.VERSION }} .
           fi
           docker login -u $DOCKER_REPO -p $DOCKER_PASSWORD
           docker push $DOCKER_REPO/$MODULE:$VERSION
