@@ -33,6 +33,7 @@ jobs:
           
           env=""
           module=""
+          lowercase_module=""
           module_type=""
           version=""
           skip=""
